@@ -1,4 +1,5 @@
 # File: detailed_escape_docker.py
+# File: advanced_privilege_escalation.py
 
 import os
 import subprocess
@@ -6,7 +7,7 @@ import logging
 from datetime import datetime
 
 def setup_logging():
-    log_filename = f'escape_docker_{datetime.now().strftime("%Y%m%d%H%M%S")}.log'
+    log_filename = f'privilege_escalation_{datetime.now().strftime("%Y%m%d%H%M%S")}.log'
     logging.basicConfig(filename=log_filename, level=logging.DEBUG, format='%(asctime)s [%(levelname)s]: %(message)s')
 
 def check_privilege_escalation():
@@ -14,8 +15,35 @@ def check_privilege_escalation():
         # Check for sudo privileges
         subprocess.run(['sudo', '-l'], check=True)
         logging.info("Privilege escalation check successful. User has sudo privileges.")
+
+        # Additional checks for privilege escalation
+        check_writable_sudoers_file()
+        check_docker_group_membership()
+
     except subprocess.CalledProcessError:
         logging.warning("Privilege escalation check failed. User may not have sudo privileges.")
+
+def check_writable_sudoers_file():
+    try:
+        # Check if the sudoers file is writable
+        subprocess.run(['sudo', 'echo', 'Testing sudoers file write permissions'], check=True)
+        logging.info("Sudoers file is writable. Potential privilege escalation opportunity.")
+
+    except subprocess.CalledProcessError:
+        logging.info("Sudoers file is not writable. No privilege escalation opportunity found.")
+
+def check_docker_group_membership():
+    try:
+        # Check if the user is a member of the docker group
+        subprocess.run(['id', '-Gn'], check=True, stdout=subprocess.PIPE, text=True)
+
+        if 'docker' in subprocess.run(['id', '-Gn'], stdout=subprocess.PIPE, text=True).stdout.split():
+            logging.info("User is a member of the docker group. Potential privilege escalation opportunity.")
+        else:
+            logging.info("User is not a member of the docker group. No privilege escalation opportunity found.")
+
+    except subprocess.CalledProcessError:
+        logging.warning("Error while checking docker group membership.")
 
 def verify_security_context():
     try:
@@ -29,14 +57,9 @@ def verify_security_context():
     except subprocess.CalledProcessError:
         logging.warning("Error while checking security context.")
 
-def configure_nsenter():
-    try:
-        # Configure nsenter options
-        subprocess.run(['echo', 'kernel.unprivileged_userns_clone=1', '|', 'sudo', 'tee', '-a', '/etc/sysctl.conf'], check=True)
-        subprocess.run(['sudo', 'sysctl', '-p'], check=True)
-        logging.info("nsenter options configured successfully.")
-    except subprocess.CalledProcessError:
-        logging.warning("Error while configuring nsenter options.")
+def setup_logging():
+    log_filename = f'escape_docker_{datetime.now().strftime("%Y%m%d%H%M%S")}.log'
+    logging.basicConfig(filename=log_filename, level=logging.DEBUG, format='%(asctime)s [%(levelname)s]: %(message)s')
 
 def enhanced_logging():
     # Improve logging with timestamps
@@ -49,17 +72,15 @@ def post_escape_analysis():
 
 def main():
     setup_logging()
-    logging.info("Welcome to the Enhanced Docker Escape Room!")
-    logging.info("In this exercise, you'll attempt to escape from a Docker container to the underlying host system.")
+    logging.info("Welcome to the Advanced Privilege Escalation Checker!")
 
-    # Check for privilege escalation opportunities
+    # Check for various privilege escalation opportunities
     check_privilege_escalation()
 
     # Verify the security context within the container and on the host
     verify_security_context()
 
-    # Allow configuration of nsenter options
-    configure_nsenter()
+    # ... (Other parts of the script remain the same)
 
     # Enhance logging with timestamps
     enhanced_logging()
