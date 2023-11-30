@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+env/
+env.bak/
+
+# Logs and reports
+*.log
+*.txt
+
+# Compiled source
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# IDE-specific files
+.vscode/
+.idea/
+
+# Temporary files
+.DS_Store
+Thumbs.db
+
+# System-specific files
+*.swp
